@@ -1,0 +1,231 @@
+@import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat:wght@400;700&family=Lobster&family=Monoton&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display+SC:ital,wght@0,400;0,700;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,700&family=Work+Sans:ital,wght@0,400;0,700;1,700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+
+body {
+    font-family: 'Cabin', 'math', sans-serif;
+    background-color: #f5f5f5;
+
+}
+
+.overall-name-text{
+    font-size:24px;
+}
+
+
+.container {
+    display: flex;
+    padding: 50px;
+      width: 100%;
+    overflow-x:hidden;
+
+}
+
+.filters {
+    width: 250px;
+    min-width: 250px;
+    background-color: #4A7A7A;
+    color: white;
+    padding: 20px;
+    margin-top:-25px;
+    border-top-left-radius:10px;
+    border-bottom-left-radius:10px;
+
+    flex-shrink: 0;
+     font-family: 'Segoe UI Semibold', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+
+}
+
+.filters h2 {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.filter-group {
+    margin-bottom: 17px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 14px;
+    font-weight:bold;
+    margin-bottom: 3px;
+}
+
+.filter-group select {
+    width: 100%;
+    padding: 5px;
+    border-radius: 4px;
+    border: none;
+     max-height: 200px; /* Total dropdown limit */
+      overflow-y: auto;
+}
+
+
+.clear-btn {
+    background-color:light gray;
+    color: #605E5C bold;
+    font-size : 14px border;
+    margin:auto;
+    border: none;
+    padding: 10px;
+    width : 50%;
+    cursor: pointer;
+    border-radius: 9px;
+}
+
+.table-container {
+    flex-grow: 1;
+    margin-left: 7px; /* Set a max height for the table */
+    overflow: auto;  /* Add vertical scrollbar */
+}
+
+.table-filters {
+    display: flex;
+    align-items:center;
+    justify-content: right  ;
+    gap:15px;
+    padding: 15px;
+    margin-bottom: 13px;
+    background-color: #4A7A7A;
+    color: whitesmoke;
+
+}
+
+
+
+.filter-row {
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+.filter-row label {
+    font-size: 14px;
+    font-weight:bold;
+}
+
+.filter-row select,
+.filter-row input {
+    padding: 5px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width:100px;
+}
+table {
+     width: max-content;
+    border-collapse: collapse;
+    background-color: #EBEBEB;
+
+}
+
+thead th {
+    background-color: #3F7078;
+     font-family: 'Segoe UI Semibold', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+     font-weight:700 !important;
+    color: white;
+    padding: 10px;
+    font-size:11px;
+    text-align: left;
+    border: 1px solid #ddd;
+    position: sticky;
+    top: 0;  /* Keeps the header sticky at the top */
+    z-index: 10; /* Ensures the header stays above the table content */
+}
+
+tfoot td {
+    background-color: #fff;
+    color: black;
+    font-size:12 px;
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+    position: sticky;
+    bottom: 0; /* Keeps the footer sticky at the bottom */
+    z-index: 5; /* Keeps footer visible over the content */
+}
+
+tbody td {
+    padding: 3px;
+     font-family: 'Segoe UI Semibold', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size:9px;
+    color:black;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.scroll-for-table {
+    width: 100%;
+    max-height: 80vh;
+    overflow: auto;
+    position: relative;
+        border-radius: 8px;
+        border:1px solid black;
+    padding:5px;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+
+.filter-button {
+    padding: 7px;
+    background-color:white;
+    border: 1px solid #111;
+    width: 130px;
+    height: 33 ;
+}
+
+.hidden {
+    display: none;
+}
+
+.filter-button.active {
+    background-color: #4a7c78;
+    color: #fff;
+    border-color: #4a7c78;
+}
+
+.filter-button.selected {
+    background-color: #4a7c78;
+    color: white;
+    border: none;
+}
+
+
+.filter-button-container {
+    display:flex;
+    justify-content:space-between;
+    margin-bottom: 12px;
+}
+
+.scroll-for-table{
+  width: 100%;
+    overflow-y: auto;
+    max-height: 80vh;
+    position: relative;
+}
+
+.clear-button-container{
+    display:flex;
+    width:100%;
+    align-items:center;
+}
+
+.end-row {
+    background-color: #c1d6ee;
+}
+
+.overall-text-container{
+display:flex;
+justify-content:center;
+align-items:center;
+
+}

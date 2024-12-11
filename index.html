@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overall Production Process</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cabin:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        .hidden {
+            display: none;
+        }
+        .selected {
+            background-color: #007BFF;
+            color: white;
+        }
+        .tab-container {
+            display: flex;
+            position: absolute;
+            top: -15px; /* Adjusted to move the tab higher above the top-bar */
+            left: 20px;
+        }
+
+        .tab {
+            background-color: #4a7a7a;
+
+            color: white;
+            padding: 37.5px 150px; /* Increased padding for a more balanced design */
+            clip-path: polygon(0 0,75% 0, 100% 100%, 100% 100%, 0 100%);
+           bor
+
+
+            margin-right: 10px;
+            margin-left: 12px;
+            margin-top:20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 24px; /* Increased font size */
+            font-weight: bold;
+            text-align: left; /* Align text to the left */
+            padding-left: 38px; /* Add padding to move the text slightly */
+            display: flex; /* Flexbox for better alignment */
+            align-items: center; /* Center vertically */
+            justify-content: flex-start; /* Align text to the left */
+            transition: all 0.3s ease;
+
+
+            transition: all 0.3s ease; /* Added transition for hover effects */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="filters" class="filters">
+            <div class="tab-container" style="margin-top:20px; margin-left:275px;">
+                <div class="tab">Overall Production Process</div>
+            </div>
+            <i class="fas fa-filter fa-2x" style="margin-bottom: 10px;"></i>
+            <form method="POST" action="/">
+                {% for column, options in filter_options.items() %}
+                <div class="filter-group">
+                    <label>{{ column }}</label>
+                    <select name="{{ column }}" onchange="this.form.submit()">
+                        <option value="all">All</option>
+                        {% for option in options %}
+                        <option value="{{ option }}" {% if option == selected_filters.get(column) %}selected{% endif %}>
+                            {{ option }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endfor %}
+                <div class="clear-button-container">
+                <button class="clear-btn" onclick="event.preventDefault(); clearFilters()">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <div class="table-filters">
+
+
+                    <div class="filter-row">
+    <label>Year</label>
+    <select id="yearFilter" onchange="filterByYearMonth()">
+        <option value="all">All</option>
+        <script>
+            const currentYear = new Date().getFullYear();
+            for (let i = 0; i < 10; i++) {
+                document.write(`<option value="${currentYear - i}">${currentYear - i}</option>`);
+            }
+        </script>
+    </select>
+</div>
+<div class="filter-row">
+    <label>Month</label>
+    <select id="monthFilter" onchange="filterByYearMonth()">
+        <option value="all">All</option>
+        <script>
+            for (let i = 1; i <= 12; i++) {
+                document.write(`<option value="${i}">${i}</option>`);
+            }
+        </script>
+    </select>
+</div>
+
+            <div class="filter-row">
+                <label>Select Date Range</label>
+                <div>
+                <input type="date" id="startDate" onchange="filterByDateRange()"> -
+                <input type="date" id="endDate" onchange="filterByDateRange()">
+            </div>
+                </div>
+        </div>
+
+
+         <div class="filter-button-container">
+    <!-- Display buttons for specific columns only -->
+    {% for column in ['StyleDescription', 'Color', 'MasterBrandCode', 'Category', 'SubCategory', 'OrderType', 'ExFactory'] %}
+    <button type="button" class="filter-button" id="btn-{{ column }}" onclick="toggleColumn('{{ column }}')">
+        {{ column }}
+    </button>
+    {% endfor %}
+</div>
+            <div class="scroll-for-table">
+
+            <table>
+                <thead>
+                    <tr>
+                        {% for column in data_columns %}
+                        <th data-column="{{ column }}" class="{% if column not in ['InternalPoNo', 'CustomerPoNo', 'StyleNo', 'PoOrder'] %} hidden {% endif %}">
+                            {{ column }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    {% for row in data %}
+                    <tr>
+                        {% for col in data_columns %}
+                        <td data-column="{{ col }}" class="{% if col not in ['InternalPoNo', 'CustomerPoNo', 'StyleNo', 'PoOrder'] %} hidden {% endif %}">
+                            {{ row[col] }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+<!--                 <tfoot>-->
+<!--            <tr>-->
+<!--                 <td class="end-row" colspan="1">Total</td>-->
+<!--                {% for column in data_columns %}-->
+<!--                <td class="end-row" data-column="{{ column }}">-->
+<!--                    {% if column in numeric_columns %}-->
+<!--                    {{ total[column] }}-->
+<!--                    {% endif %}-->
+<!--                </td>-->
+<!--                {% endfor %}-->
+<!--            </tr>-->
+<!--        </tfoot>-->
+            </table>
+                </div>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+        // Restore filter values from localStorage
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            const storedValue = localStorage.getItem(select.name);
+            if (storedValue) {
+                select.value = storedValue;
+            }
+        });
+
+        // Add event listeners to store values in localStorage on change
+        selects.forEach(select => {
+            select.addEventListener('change', (event) => {
+                localStorage.setItem(event.target.name, event.target.value);
+
+                setTimeout(() => {
+                    localStorage.removeItem(event.target.name);
+                }, 5000);
+            });
+        });
+    });
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+    const totalRow = document.querySelector("tfoot tr");
+
+<!--    const columns = Array.from(document.querySelectorAll("thead th")).filter(col => !col.classList.contains('hidden'));-->
+    const columns = Array.from(document.querySelectorAll("thead th"));
+    const rows = document.querySelectorAll("#table-body tr");
+
+    const totalColumns = [
+       'PoOrder','CHECKING' , 'CUTTING', 'Final Checking', 'PACKING', 'Process', 'SHIPPED', 'STITCHING'
+    ]; // Include the exact column names for totals
+
+    // Calculate totals
+    totalColumns.forEach(columnName => {
+        const columnIndex = columns.findIndex(col => col.getAttribute('data-column') === columnName);
+
+        if (columnIndex !== -1) {
+            let total = 0;
+            rows.forEach(row => {
+                const cell = row.querySelector(`td:nth-child(${columnIndex + 1})`);
+                const cellValue = cell ? cell.textContent.trim() : "0";
+                if (!isNaN(cellValue) && cellValue !== "") {
+                    total += parseFloat(cellValue.replace(/,/g, '')) || 0;
+                }
+            });
+
+            // Update the total row for the specific column
+            if (!isNaN(total)) {
+                const totalCell = totalRow.querySelector(`td:nth-child(${columnIndex + 1})`);
+                if (totalCell) {
+                    totalCell.textContent = total !== 0 ? total.toFixed(2) : "";
+                }
+            }
+        }
+    });
+});
+
+
+          document.addEventListener("DOMContentLoaded", () => {
+        const rows = document.querySelectorAll("#table-body tr");
+        const yearSet = new Set();
+        const monthSet = new Set();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        rows.forEach(row => {
+            const exFactoryDateText = row.querySelector("[data-column='ExFactory']").textContent.trim();
+            const exFactoryDate = new Date(exFactoryDateText);
+
+            if (!isNaN(exFactoryDate)) {
+                yearSet.add(exFactoryDate.getFullYear());
+                monthSet.add(exFactoryDate.getMonth());
+            }
+        });
+
+        // Populate the year dropdown
+        const yearFilter = document.getElementById("yearFilter");
+        yearFilter.innerHTML = '<option value="all">All</option>';
+        [...yearSet].sort((a, b) => b - a).forEach(year => {
+            yearFilter.innerHTML += `<option value="${year}">${year}</option>`;
+        });
+
+        // Populate the month dropdown
+        const monthFilter = document.getElementById("monthFilter");
+        monthFilter.innerHTML = '<option value="all">All</option>';
+        [...monthSet].sort((a, b) => a - b).forEach(month => {
+            monthFilter.innerHTML += `<option value="${month + 1}">${monthNames[month]}</option>`;
+        });
+    });
+
+    function filterByYearMonth() {
+        const year = document.getElementById("yearFilter").value;
+        const month = document.getElementById("monthFilter").value;
+        const rows = document.querySelectorAll("#table-body tr");
+
+        rows.forEach(row => {
+            const exFactoryDateText = row.querySelector("[data-column='ExFactory']").textContent.trim();
+            const exFactoryDate = new Date(exFactoryDateText);
+            const rowYear = exFactoryDate.getFullYear();
+            const rowMonth = exFactoryDate.getMonth() + 1; // Months are 0-indexed
+
+            let showRow = (year === "all" || rowYear == year) &&
+                (month === "all" || rowMonth == month);
+
+            row.style.display = showRow ? "" : "none";
+        });
+    }
+
+
+function filterByDateRange() {
+    const startDateInput = document.getElementById("startDate").value;
+    const endDateInput = document.getElementById("endDate").value;
+    const rows = document.querySelectorAll("#table-body tr");
+
+    const startDate = startDateInput ? new Date(startDateInput) : null;
+    const endDate = endDateInput ? new Date(endDateInput) : null;
+
+    rows.forEach(row => {
+        const exFactoryDateText = row.querySelector("[data-column='ExFactory']").textContent.trim();
+        const exFactoryDate = new Date(exFactoryDateText); // Direct parsing of 'YYYY-MM-DD'
+
+        let showRow = true;
+        if (startDate && endDate) {
+            showRow = exFactoryDate >= startDate && exFactoryDate <= endDate;
+        }
+
+        row.style.display = showRow ? "" : "none";
+    });
+}
+
+
+
+        // Initial visible columns
+        const initiallyVisibleColumns = new Set(["InternalPoNo", "CustomerPoNo", "StyleNo", "PoOrder"]);
+
+      function toggleColumn(columnName) {
+    const columnElements = document.querySelectorAll(`[data-column='${columnName}']`);
+    const button = document.getElementById(`btn-${columnName}`);
+
+    // Toggle column visibility
+    const currentlyHidden = columnElements[0].classList.contains('hidden');
+    columnElements.forEach(element => {
+        element.classList.toggle('hidden', !currentlyHidden);
+    });
+
+    // Change button appearance based on selection
+    button.classList.toggle('selected', currentlyHidden);
+}
+
+// Set initially visible columns excluding those with toggle buttons
+document.addEventListener("DOMContentLoaded", function() {
+    const initialColumns = new Set(['InternalPoNo', 'CustomerPoNo', 'StyleNo', 'PoOrder']);
+    const columns = document.querySelectorAll('thead th, tbody td');
+    columns.forEach(element => {
+        const columnName = element.getAttribute('data-column');
+        if (!initialColumns.has(columnName) && !document.getElementById(`btn-${columnName}`)) {
+            element.classList.remove('hidden');
+        }
+    });
+});
+
+        function setInitialVisibilityAndButtonState() {
+            const columns = [...initiallyVisibleColumns];
+            columns.forEach(column => {
+                const button = document.getElementById(`btn-${column}`);
+                button.classList.add('selected');
+
+                const columnElements = document.querySelectorAll(`[data-column='${column}']`);
+                columnElements.forEach(element => {
+                    element.classList.remove('hidden');
+                });
+            });
+        }
+
+function clearFilters() {
+    // Prevent form submission and page refresh
+    event.preventDefault();
+
+    // Reset all filter select values to 'all'
+    const selects = document.querySelectorAll('select');
+    selects.forEach(select => {
+        select.value = 'all';
+        // Trigger onchange event for each filter to apply the reset logic
+        const event = new Event('change');
+        select.dispatchEvent(event);
+    });
+
+    // Reset the date inputs
+    document.getElementById("startDate").value = "";
+    document.getElementById("endDate").value = "";
+
+    // Reset table rows visibility
+    const rows = document.querySelectorAll("#table-body tr");
+    rows.forEach(row => {
+        row.style.display = ""; // Make sure all rows are visible
+    });
+
+    // Reset column visibility
+    resetColumns();
+
+    // Trigger filter functions to apply the reset
+    filterByYearMonth();
+    filterByDateRange();
+}
+
+
+    const selects = document.querySelectorAll('select');
+    selects.forEach(select => select.value = 'all');
+
+        function resetColumns() {
+            document.querySelectorAll('thead th, tbody td').forEach(element => {
+                console.log(element)
+                element.classList.add('hidden');
+
+            });
+
+            setInitialVisibilityAndButtonState();
+        }
+
+        document.querySelectorAll('select').forEach(select => {
+    select.addEventListener('change', (event) => {
+        const selectId = event.target.id; // Get the select element's ID
+        const selectedValue = event.target.value; // Get the selected value
+<!--        localStorage.setItem(selectId, selectedValue); // Store the selected value in localStorage-->
+    });
+});
+
+
+
+
+    </script>
+</body>
+</html>
